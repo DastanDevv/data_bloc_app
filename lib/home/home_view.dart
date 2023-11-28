@@ -8,54 +8,48 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home View'),
-      ),
-      // `BlocListener` - <> berilgen cubit je bloctu ugup turat jana
-      // state ke jarasha berilgen function dy atkarat
-      body: BlocListener<HomeCubit, HomeState>(
-        listener: (context, state) {
-          if (state is HomeErrorState) {
-            showAdaptiveDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Oop! Error value'),
-                content: Text('Value is ${state.message}'),
-              ),
-            );
-          }
-        },
-        child: Center(
-          child: Column(
-            children: [
-              // BlocBuilder -  <> berilgen cubit je bloc menen state ugup turat
-              // state ke jarasha ozun kurat
-              BlocBuilder<HomeCubit, HomeState>(
-                builder: (context, state) {
-                  if (state is HomeInitialState) {
-                    return const Text('Initial');
-                  } else if (state is HomeLoadingState) {
-                    return const CircularProgressIndicator();
-                  } else if (state is HomeSuccessState) {
-                    return Text('Success: ${state.data}');
-                  } else if (state is HomeErrorState) {
-                    return Text('Error: ${state.message}');
-                  } else {
-                    return const Text('Unknown');
-                  }
-                },
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  final homeCubit = context.read<HomeCubit>();
-                  homeCubit.parseNumber('123fr');
-                },
-                child: const Text('Parse Number'),
-              )
-            ],
-          ),
+        appBar: AppBar(
+          title: const Text('Home View'),
         ),
-      ),
-    );
+        // `BlocListener` - <> berilgen cubit je bloctu ugup turat jana
+        // state ke jarasha berilgen function dy atkarat
+        body: Center(
+          child: BlocConsumer<HomeCubit, HomeState>(
+            listener: (context, state) {
+              if (state is HomeErrorState) {
+                showAdaptiveDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Oop! Error value'),
+                    content: Text('Value is ${state.message}'),
+                  ),
+                );
+              }
+            },
+            builder: (context, state) {
+              return Column(
+                children: [
+                  if (state is HomeInitialState) const Text('Initial'),
+                  if (state is HomeLoadingState)
+                    const CircularProgressIndicator(),
+                  if (state is HomeSuccessState) Text('Success: ${state.data}'),
+                  if (state is HomeErrorState) Text('Error: ${state.message}'),
+                  if (!(state is HomeInitialState ||
+                      state is HomeLoadingState ||
+                      state is HomeSuccessState ||
+                      state is HomeErrorState))
+                    const Text('Unknown'),
+                  ElevatedButton(
+                    onPressed: () {
+                      final homeCubit = context.read<HomeCubit>();
+                      homeCubit.parseNumber('123fr');
+                    },
+                    child: const Text('Parse Number'),
+                  ),
+                ],
+              );
+            },
+          ),
+        ));
   }
 }
